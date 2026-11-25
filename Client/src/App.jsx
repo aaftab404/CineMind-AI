@@ -9,7 +9,7 @@ import Profile from "./Pages/Profile";
 import ResetPassword from "./Pages/ResetPassword";
 import ForgotPassword from "./Pages/ForgotPassword";
 
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
   return (

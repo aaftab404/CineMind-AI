@@ -16,26 +16,61 @@ function Profile() {
     const [error, setError] = useState("");
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
+    const file = e.target.files[0];
 
-        if (!file) return;
+    if (!file) return;
 
-        if (file.size > 5 * 1024 * 1024) {
-            setError("Image size must be less than 5MB.");
-            e.target.value = "";
-            return;
-        }
+    if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image.");
+        e.target.value = "";
+        return;
+    }
 
-        setError("");
+    if (file.size > 5 * 1024 * 1024) {
+        setError("Image size must be less than 5MB.");
+        e.target.value = "";
+        return;
+    }
 
-        const reader = new FileReader();
+    setError("");
 
-        reader.onload = () => {
-            setProfileImage(reader.result);
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        const image = new Image();
+
+        image.onload = () => {
+            const canvas = document.createElement("canvas");
+            const maxSize = 400;
+
+            let width = image.width;
+            let height = image.height;
+
+            if (width > height && width > maxSize) {
+                height = Math.round((height * maxSize) / width);
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = Math.round((width * maxSize) / height);
+                height = maxSize;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(image, 0, 0, width, height);
+
+            const compressedImage = canvas.toDataURL("image/jpeg", 0.7);
+            setProfileImage(compressedImage);
         };
 
-        reader.readAsDataURL(file);
+        image.onerror = () => setError("Unable to process this image.");
+        image.src = reader.result;
     };
+
+    reader.readAsDataURL(file);
+};
+
 
     const handleSave = async () => {
         if (!name.trim()) {
